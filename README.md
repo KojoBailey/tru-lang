@@ -9,7 +9,7 @@ Tru's spec is currently a work in progress and not formalised into a document th
 ## Development
 Tru is currently in its very early stages of development - there hasn't even yet been a consistent syntax decided. Right now, focus is on the core language ideas, features, and philosophies. As such, development has started from the abstract syntax tree, skipping the lexer/tokeniser and parser for the timebeing.
 
-The compiler is being developed in C++ until it can be written in Tru itself. In particular, it openly uses the latest standard and its features, including modules, `std::expected`, and `<print>`.
+The compiler is being developed in C++ until it can be written in Tru itself. In particular, it openly uses the latest standard and its features, including modules, `std::expected`, and `<print>`. It also uses [Xmake](https://xmake.io/) as its build system, although support for CMake (and potentially other build systems like Make) can be integrated.
 
 ## Contributions
 The Tru language spec itself is led by [me](https://github.com/KojoBailey), but I am very much open to feedback, ideas, and constructive criticism.
