@@ -2,6 +2,7 @@ module;
 
 #include <optional>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 #include <variant>
@@ -26,4 +27,6 @@ export namespace std {
 
 	template<typename Key, typename Value>
 	using Map = std::unordered_map<Key, Value>;
+
+	using StringView = std::string_view;
 }
