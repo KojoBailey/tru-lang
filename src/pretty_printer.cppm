@@ -7,10 +7,8 @@ export module pretty_printer;
 import util;
 
 export {
-	class PrettyFormatable {
-	public:
-		virtual auto prettyFormat() const -> std::Vector<std::String> = 0;
-	};
+	template<typename A>
+	auto prettyFormat(const A&) -> std::Vector<std::String>;
 
 	void prettyPrint(std::Vector<std::String>& lines)
 	{

@@ -1,5 +1,6 @@
 import util;
 import ast;
+import pretty_printer;
 
 #include <print>
 #include <variant>
@@ -41,14 +42,13 @@ auto main() -> std::CInt
 				for (auto& expression : expressionSequence.expressions) {
 					if (std::holds_alternative<FunctionCall>(expression.node)) {
 						auto functionCall = std::get<FunctionCall>(expression.node);
-						for (auto& line : functionCall.prettyFormat()) {
+						for (auto& line : prettyFormat(functionCall)) {
 							printBuffer += "\t" + line + "\n";
 						}
 					}
 				}
 			}
 		}
-		printBuffer += "\n";
 	}
 	printBuffer += "\n== PROGRAM END ==\n";
 	std::print("{}", printBuffer);

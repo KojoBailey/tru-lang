@@ -12,22 +12,20 @@ export {
 
 	class Expression;
 
-	struct Identifier : PrettyFormatable {
+	struct Identifier {
 		std::String name;
-
-		Identifier(std::String name)
-			: name(std::move(name)) {}
 
 		auto operator==(const Identifier& other) const -> std::Bool
 		{
 			return name == other.name;
 		}
-
-		auto prettyFormat() const -> std::Vector<std::String>
-		{
-			return {std::format("Identifier(\"{}\")", name)};
-		}
 	};
+
+	template<>
+	auto prettyFormat(const Identifier& object) -> std::Vector<std::String>
+	{
+		return {std::format("Identifier(\"{}\")", object.name)};
+	}
 
 	template<>
 	struct std::hash<Identifier> {
@@ -55,38 +53,19 @@ export {
 		Expression* value;
 	};
 
-	struct StringLiteral : PrettyFormatable {
+	struct StringLiteral {
 		std::String contents;
-
-		StringLiteral(std::String contents)
-			: contents(std::move(contents)) {}
-
-		auto prettyFormat() const -> std::Vector<std::String>
-		{
-			return {std::format("StringLiteral(\"{}\")", contents)};
-		}
 	};
+
+	template<>
+	auto prettyFormat(const StringLiteral& object) -> std::Vector<std::String>
+	{
+		return {std::format("StringLiteral(\"{}\")", object.contents)};
+	}
 
 	struct FunctionCall {
 		Identifier callee;
 		std::Map<Identifier, Expression*> args; // Supports mixed positional & keyword args.
-											   //
-		auto prettyFormat() const -> std::Vector<std::String>
-		{
-			std::Vector<std::String> result = {
-				"FunctionCall(",
-				std::format("\tcallee = {},", callee.prettyFormat()[0]),
-				"\targs = ("
-			};
-			for (auto [key, value] : args) {
-				result.push_back(
-					std::format("\t\t{} -> TBD,", key.prettyFormat()[0])
-				);
-			}
-			result.push_back("\t),");
-			result.push_back(")");
-			return result;
-		}
 	};
 
 	struct BinaryOperator {};
@@ -144,5 +123,34 @@ export {
 	public:
 		std::Vector<Component> components;
 	};
+
+	template<typename Key, typename Value>
+	auto prettyFormat(const std::Map<Key, Value>& object) -> std::Vector<std::String>
+	{
+		std::Vector<std::String> result = { "(" };
+		for (auto [key, value] : object) {
+			result.push_back(std::format("\t{} -> {},",
+				prettyFormat(key)[0],
+				prettyFormat(std::get<StringLiteral>(value->node))[0]
+			));
+		}
+		result.push_back(")");
+		return result;
+	}
+
+	template<>
+	auto prettyFormat(const FunctionCall& object) -> std::Vector<std::String>
+	{
+		std::Vector<std::String> result = {
+			"FunctionCall(",
+			std::format("\tcallee = {},", prettyFormat(object.callee)[0]),
+			"\targs ="
+		};
+		for (auto& line : prettyFormat(object.args)) {
+			result.push_back("\t" + line);
+		}
+		result.push_back(")");
+		return result;
+	}
 
 }
