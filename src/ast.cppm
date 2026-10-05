@@ -1,6 +1,6 @@
 module;
 
-#include <print>
+#include <format>
 #include <variant>
 
 export module ast;
@@ -10,7 +10,17 @@ import pretty_printer;
 
 export {
 
+	template<>
+	auto prettyFormat(const std::String& object) -> std::Vector<PrettyFormatElement>
+	{
+		return std::Vector<PrettyFormatElement>{{std::format("\"{}\"", object)}};
+	}
+
 	class Expression;
+
+	template<>
+	auto prettyFormat(const Expression& expression)
+		-> std::Vector<PrettyFormatElement>;
 
 	struct Identifier {
 		std::String name;
@@ -22,9 +32,12 @@ export {
 	};
 
 	template<>
-	auto prettyFormat(const Identifier& object) -> std::Vector<std::String>
+	auto prettyFormat(const Identifier& object) -> std::Vector<PrettyFormatElement>
 	{
-		return {std::format("Identifier(\"{}\")", object.name)};
+		// return prettyFormat(/*nodeName=*/"Identifier", /*nodeArgs=*/{
+		// 	{"name", prettyFormat(object.name)}
+		// });
+		return std::Vector<PrettyFormatElement>{{object.name}};
 	}
 
 	template<>
@@ -58,15 +71,50 @@ export {
 	};
 
 	template<>
-	auto prettyFormat(const StringLiteral& object) -> std::Vector<std::String>
+	auto prettyFormat(const StringLiteral& object) -> std::Vector<PrettyFormatElement>
 	{
-		return {std::format("StringLiteral(\"{}\")", object.contents)};
+		return std::Vector<PrettyFormatElement>{{std::format("\"{}\"", object.contents)}};
+	}
+
+	template<>
+	auto prettyFormat(const std::HashMap<Identifier, Expression*>& object)
+		-> std::Vector<PrettyFormatElement>
+	{
+		std::Vector<PrettyFormatElement> result;
+		result.emplace_back("[");
+		if (object.size() > 1) {
+			result.emplace_back(PrettyNewline{});
+			result.emplace_back(PrettyIndent{});
+			for (auto& [identifier, expression] : object) {
+				result.emplace_back(std::format("{} -> ", identifier.name));
+				result.append_range(prettyFormat(*expression));
+				result.emplace_back(PrettyNewline{});
+			}
+			result.emplace_back(PrettyOutdent{});
+		} else {
+			for (auto& [identifier, expression] : object) {
+				result.emplace_back(std::format("{} -> ", identifier.name));
+				result.append_range(prettyFormat(*expression));
+			}
+		}
+		result.emplace_back("]");
+		return result;
 	}
 
 	struct FunctionCall {
 		Identifier callee;
-		std::Map<Identifier, Expression*> args; // Supports mixed positional & keyword args.
+		std::HashMap<Identifier, Expression*> args; // Supports mixed positional & keyword args.
 	};
+
+	template<>
+	auto prettyFormat(const FunctionCall& object) -> std::Vector<PrettyFormatElement>
+	{
+		// NOTE: This could be automated with C++26 reflection.
+		return prettyFormat(/*nodeName=*/"FunctionCall", /*nodeArgs=*/{
+			{"callee", prettyFormat(object.callee)},
+			{"args", prettyFormat(object.args)},
+		});
+	}
 
 	struct BinaryOperator {};
 
@@ -98,6 +146,16 @@ export {
 		> node;
 	};
 
+	template<>
+	auto prettyFormat(const Expression& expression)
+		-> std::Vector<PrettyFormatElement>
+	{
+		if (std::holds_alternative<StringLiteral>(expression.node))
+			return prettyFormat(std::get<StringLiteral>(expression.node));
+		// TODO: Support other expressions.
+		return std::Vector<PrettyFormatElement>{{"<expr>"}};
+	}
+
 	struct MemberDeclaration {
 		std::Bool isLocal;
 		Identifier name;
@@ -123,34 +181,5 @@ export {
 	public:
 		std::Vector<Component> components;
 	};
-
-	template<typename Key, typename Value>
-	auto prettyFormat(const std::Map<Key, Value>& object) -> std::Vector<std::String>
-	{
-		std::Vector<std::String> result = { "(" };
-		for (auto [key, value] : object) {
-			result.push_back(std::format("\t{} -> {},",
-				prettyFormat(key)[0],
-				prettyFormat(std::get<StringLiteral>(value->node))[0]
-			));
-		}
-		result.push_back(")");
-		return result;
-	}
-
-	template<>
-	auto prettyFormat(const FunctionCall& object) -> std::Vector<std::String>
-	{
-		std::Vector<std::String> result = {
-			"FunctionCall(",
-			std::format("\tcallee = {},", prettyFormat(object.callee)[0]),
-			"\targs ="
-		};
-		for (auto& line : prettyFormat(object.args)) {
-			result.push_back("\t" + line);
-		}
-		result.push_back(")");
-		return result;
-	}
 
 }

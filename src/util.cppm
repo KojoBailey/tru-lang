@@ -1,5 +1,6 @@
 module;
 
+#include <map>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -26,7 +27,13 @@ export namespace std {
 	using String = std::string;
 
 	template<typename Key, typename Value>
-	using Map = std::unordered_map<Key, Value>;
+	using Map = std::map<Key, Value>;
+
+	template<typename Key, typename Value>
+	using HashMap = std::unordered_map<Key, Value>;
 
 	using StringView = std::string_view;
+
+	template<typename A, typename B>
+	using Pair = std::pair<A, B>;
 }

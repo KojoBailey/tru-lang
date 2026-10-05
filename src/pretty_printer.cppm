@@ -1,19 +1,46 @@
 module;
 
-#include <print>
+#include <string>
+#include <variant>
 
 export module pretty_printer;
 
 import util;
 
 export {
-	template<typename A>
-	auto prettyFormat(const A&) -> std::Vector<std::String>;
+	struct PrettyIdentifier {
+		std::String name;
 
-	void prettyPrint(std::Vector<std::String>& lines)
-	{
-		for (std::StringView line : lines) {
-			std::println("{}", line);
+		auto operator==(const PrettyIdentifier& other) const -> std::Bool
+		{
+			return name == other.name;
 		}
-	}
+	};
+
+	struct PrettyNewline {};
+	struct PrettyIndent {};
+	struct PrettyOutdent {};
+
+	struct PrettyFormatElement {
+		std::Variant<
+			std::String,
+			std::Bool,
+			PrettyIdentifier,
+			// PrettyList,
+			// PrettyMap,
+			PrettyNewline,
+			PrettyIndent,
+			PrettyOutdent
+		> variant;
+	};
+
+	auto prettyFormat(
+		std::StringView nodeName,
+		std::Vector<std::Pair<std::String, std::Vector<PrettyFormatElement>>> nodeArgs
+	) -> std::Vector<PrettyFormatElement>;
+
+	template<typename A>
+	auto prettyFormat(const A&) -> std::Vector<PrettyFormatElement>;
+
+	void prettyPrint(const std::Vector<PrettyFormatElement>& format);
 }
