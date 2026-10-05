@@ -8,13 +8,15 @@ export module ast;
 import util;
 import pretty_printer;
 
+using namespace core;
+
 export namespace ast {
 	class Expression;
 
 	struct Identifier {
-		std::String name;
+		String name;
 
-		auto operator==(const Identifier& other) const -> std::Bool
+		auto operator==(const Identifier& other) const -> Bool
 		{
 			return name == other.name;
 		}
@@ -22,12 +24,12 @@ export namespace ast {
 
 	// aka Block
 	struct ExpressionSequence {
-		std::Vector<Expression> expressions;
+		Vector<Expression> expressions;
 	};
 
 	struct Declaration {
-		std::Maybe<Identifier> newIdentifier; // May be anonymous.
-		std::Maybe<Expression*> type; // May be inferred.
+		Maybe<Identifier> newIdentifier; // May be anonymous.
+		Maybe<Expression*> type; // May be inferred.
 	};
 
 	struct Assignment {
@@ -40,12 +42,12 @@ export namespace ast {
 	};
 
 	struct StringLiteral {
-		std::String contents;
+		String contents;
 	};
 
 	struct FunctionCall {
 		Identifier callee;
-		std::Vector<std::Pair<Identifier, Expression*>> args; // Supports mixed positional & keyword args.
+		Vector<Pair<Identifier, Expression*>> args; // Supports mixed positional & keyword args.
 	};
 
 	struct BinaryOperator {};
@@ -65,7 +67,7 @@ export namespace ast {
 
 	class Expression {
 	public:
-		std::Variant<
+		Variant<
 			ExpressionSequence,
 			Declaration,
 			Assignment,
@@ -79,21 +81,21 @@ export namespace ast {
 	};
 
 	struct MemberDeclaration {
-		std::Bool isLocal;
+		Bool isLocal;
 		Identifier name;
 		Expression* type;
-		std::Maybe<Expression*> defaultValue;
+		Maybe<Expression*> defaultValue;
 	};
 
 	struct Import {
-		std::Vector<std::String> path;
-		std::Bool isQualified;
-		std::Maybe<std::String> qualifierAlias;
+		Vector<String> path;
+		Bool isQualified;
+		Maybe<String> qualifierAlias;
 	};
 
 	class Component {
 	public:
-		std::Variant<
+		Variant<
 			MemberDeclaration,
 			Import
 		> component;
@@ -101,7 +103,7 @@ export namespace ast {
 
 	class Interface {
 	public:
-		std::Vector<Component> components;
+		Vector<Component> components;
 	};
 }
 
@@ -109,39 +111,39 @@ export {
 	template<>
 	struct std::hash<ast::Identifier> {
 		auto operator()(const ast::Identifier& self) const noexcept -> USz {
-			return std::hash<std::String>{}(self.name);
+			return std::hash<String>{}(self.name);
 		}
 	};
 
 	template<>
 	auto prettyFormat(const ast::Expression& expression)
-		-> std::Vector<PrettyFormatElement>;
+		-> Vector<PrettyFormatElement>;
 
 	// Strings are printed as quoted strings rather than nodes.
 	template<>
-	auto prettyFormat(const std::String& object) -> std::Vector<PrettyFormatElement>
+	auto prettyFormat(const String& object) -> Vector<PrettyFormatElement>
 	{
-		return std::Vector<PrettyFormatElement>{{std::format("\"{}\"", object)}};
+		return Vector<PrettyFormatElement>{{std::format("\"{}\"", object)}};
 	}
 
 	// Identifiers are printed as simple unquoted strings.
 	template<>
-	auto prettyFormat(const ast::Identifier& object) -> std::Vector<PrettyFormatElement>
+	auto prettyFormat(const ast::Identifier& object) -> Vector<PrettyFormatElement>
 	{
-		return std::Vector<PrettyFormatElement>{{object.name}};
+		return Vector<PrettyFormatElement>{{object.name}};
 	}
 
 	template<>
-	auto prettyFormat(const ast::StringLiteral& object) -> std::Vector<PrettyFormatElement>
+	auto prettyFormat(const ast::StringLiteral& object) -> Vector<PrettyFormatElement>
 	{
-		return std::Vector<PrettyFormatElement>{{std::format("\"{}\"", object.contents)}};
+		return Vector<PrettyFormatElement>{{std::format("\"{}\"", object.contents)}};
 	}
 
 	template<>
-	auto prettyFormat(const std::Vector<std::Pair<ast::Identifier, ast::Expression*>>& object)
-		-> std::Vector<PrettyFormatElement>
+	auto prettyFormat(const Vector<Pair<ast::Identifier, ast::Expression*>>& object)
+		-> Vector<PrettyFormatElement>
 	{
-		std::Vector<PrettyFormatElement> result;
+		Vector<PrettyFormatElement> result;
 		result.emplace_back("[");
 		if (object.size() > 1) {
 			result.emplace_back(PrettyNewline{});
@@ -163,7 +165,7 @@ export {
 	}
 
 	template<>
-	auto prettyFormat(const ast::FunctionCall& object) -> std::Vector<PrettyFormatElement>
+	auto prettyFormat(const ast::FunctionCall& object) -> Vector<PrettyFormatElement>
 	{
 		// NOTE: This could be automated with C++26 reflection.
 		return prettyFormat(/*nodeName=*/"FunctionCall", /*nodeArgs=*/{
@@ -174,11 +176,11 @@ export {
 
 	template<>
 	auto prettyFormat(const ast::Expression& expression)
-		-> std::Vector<PrettyFormatElement>
+		-> Vector<PrettyFormatElement>
 	{
 		if (std::holds_alternative<ast::StringLiteral>(expression.node))
 			return prettyFormat(std::get<ast::StringLiteral>(expression.node));
 		// TODO: Support other expressions.
-		return std::Vector<PrettyFormatElement>{{"<expr>"}};
+		return Vector<PrettyFormatElement>{{"<expr>"}};
 	}
 }

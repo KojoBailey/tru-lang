@@ -10,7 +10,7 @@ module;
 
 export module util;
 
-export namespace std {
+export namespace core {
 	using USz = std::size_t;
 	using CInt = int;
 	using Bool = bool;

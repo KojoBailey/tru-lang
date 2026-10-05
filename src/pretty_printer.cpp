@@ -6,11 +6,11 @@ module;
 module pretty_printer;
 
 auto prettyFormat(
-	std::StringView nodeName,
-	std::Vector<std::Pair<std::String, std::Vector<PrettyFormatElement>>> nodeArgs
-) -> std::Vector<PrettyFormatElement>
+	StringView nodeName,
+	Vector<Pair<String, Vector<PrettyFormatElement>>> nodeArgs
+) -> Vector<PrettyFormatElement>
 {
-	std::Vector<PrettyFormatElement> result;
+	Vector<PrettyFormatElement> result;
 	result.emplace_back(std::format("[{}", nodeName));
 	result.emplace_back(PrettyNewline{});
 	result.emplace_back(PrettyIndent{});
@@ -24,14 +24,14 @@ auto prettyFormat(
 	return result;
 }
 
-void prettyPrint(const std::Vector<PrettyFormatElement>& format)
+void prettyPrint(const Vector<PrettyFormatElement>& format)
 {
-	std::String buffer;
+	String buffer;
 
-	std::USz indentDepth = 0;
+	USz indentDepth = 0;
 	for (const auto& item : format) {
-		if (std::holds_alternative<std::String>(item.variant)) {
-			buffer += std::get<std::String>(item.variant);
+		if (std::holds_alternative<String>(item.variant)) {
+			buffer += std::get<String>(item.variant);
 		}
 		if (std::holds_alternative<PrettyIndent>(item.variant)) {
 			++indentDepth;
@@ -40,7 +40,7 @@ void prettyPrint(const std::Vector<PrettyFormatElement>& format)
 			--indentDepth;
 		}
 		if (std::holds_alternative<PrettyNewline>(item.variant)) {
-			for (std::USz i = 0; i < indentDepth; ++i) {
+			for (USz i = 0; i < indentDepth; ++i) {
 				std::print("\t");
 			}
 			std::println("{}", buffer);

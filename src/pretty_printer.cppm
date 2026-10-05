@@ -1,17 +1,18 @@
 module;
 
 #include <string>
-#include <variant>
 
 export module pretty_printer;
 
 import util;
 
+using namespace core;
+
 export {
 	struct PrettyIdentifier {
-		std::String name;
+		String name;
 
-		auto operator==(const PrettyIdentifier& other) const -> std::Bool
+		auto operator==(const PrettyIdentifier& other) const -> Bool
 		{
 			return name == other.name;
 		}
@@ -22,9 +23,9 @@ export {
 	struct PrettyOutdent {};
 
 	struct PrettyFormatElement {
-		std::Variant<
-			std::String,
-			std::Bool,
+		Variant<
+			String,
+			Bool,
 			PrettyIdentifier,
 			// PrettyList,
 			// PrettyMap,
@@ -35,14 +36,14 @@ export {
 	};
 
 	auto prettyFormat(
-		std::StringView nodeName,
-		std::Vector<std::Pair<std::String, std::Vector<PrettyFormatElement>>> nodeArgs
-	) -> std::Vector<PrettyFormatElement>;
+		StringView nodeName,
+		Vector<Pair<String, Vector<PrettyFormatElement>>> nodeArgs
+	) -> Vector<PrettyFormatElement>;
 
 	template<typename A>
-	auto prettyFormat(const A&) -> std::Vector<PrettyFormatElement>;
+	auto prettyFormat(const A&) -> Vector<PrettyFormatElement>;
 
-	void prettyPrint(const std::Vector<PrettyFormatElement>& format);
+	void prettyPrint(const Vector<PrettyFormatElement>& format);
 
 	template<typename T>
 	void prettyPrint(const T& object)

@@ -2,7 +2,7 @@ import util;
 import ast;
 import pretty_printer;
 
-using namespace std;
+using namespace core;
 using namespace ast;
 
 auto main() -> CInt
