@@ -2,7 +2,12 @@ import util;
 import ast;
 import pretty_printer;
 
-auto main() -> std::CInt
+// TODO: Namepsace `ast` module.
+// May require special decoupling from `pretty_printer`.
+
+using namespace std;
+
+auto main() -> CInt
 {
 	Expression stringLiteral = Expression{StringLiteral{"Hello, world!"}};
 	FunctionCall helloWorld = {
