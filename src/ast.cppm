@@ -8,19 +8,8 @@ export module ast;
 import util;
 import pretty_printer;
 
-export {
-
-	template<>
-	auto prettyFormat(const std::String& object) -> std::Vector<PrettyFormatElement>
-	{
-		return std::Vector<PrettyFormatElement>{{std::format("\"{}\"", object)}};
-	}
-
+export namespace ast {
 	class Expression;
-
-	template<>
-	auto prettyFormat(const Expression& expression)
-		-> std::Vector<PrettyFormatElement>;
 
 	struct Identifier {
 		std::String name;
@@ -28,22 +17,6 @@ export {
 		auto operator==(const Identifier& other) const -> std::Bool
 		{
 			return name == other.name;
-		}
-	};
-
-	template<>
-	auto prettyFormat(const Identifier& object) -> std::Vector<PrettyFormatElement>
-	{
-		// return prettyFormat(/*nodeName=*/"Identifier", /*nodeArgs=*/{
-		// 	{"name", prettyFormat(object.name)}
-		// });
-		return std::Vector<PrettyFormatElement>{{object.name}};
-	}
-
-	template<>
-	struct std::hash<Identifier> {
-		auto operator()(const Identifier& self) const noexcept -> USz {
-			return std::hash<std::String>{}(self.name);
 		}
 	};
 
@@ -70,51 +43,10 @@ export {
 		std::String contents;
 	};
 
-	template<>
-	auto prettyFormat(const StringLiteral& object) -> std::Vector<PrettyFormatElement>
-	{
-		return std::Vector<PrettyFormatElement>{{std::format("\"{}\"", object.contents)}};
-	}
-
-	template<>
-	auto prettyFormat(const std::Vector<std::Pair<Identifier, Expression*>>& object)
-		-> std::Vector<PrettyFormatElement>
-	{
-		std::Vector<PrettyFormatElement> result;
-		result.emplace_back("[");
-		if (object.size() > 1) {
-			result.emplace_back(PrettyNewline{});
-			result.emplace_back(PrettyIndent{});
-			for (auto& [identifier, expression] : object) {
-				result.emplace_back(std::format("{} -> ", identifier.name));
-				result.append_range(prettyFormat(*expression));
-				result.emplace_back(PrettyNewline{});
-			}
-			result.emplace_back(PrettyOutdent{});
-		} else {
-			for (auto& [identifier, expression] : object) {
-				result.emplace_back(std::format("{} -> ", identifier.name));
-				result.append_range(prettyFormat(*expression));
-			}
-		}
-		result.emplace_back("]");
-		return result;
-	}
-
 	struct FunctionCall {
 		Identifier callee;
 		std::Vector<std::Pair<Identifier, Expression*>> args; // Supports mixed positional & keyword args.
 	};
-
-	template<>
-	auto prettyFormat(const FunctionCall& object) -> std::Vector<PrettyFormatElement>
-	{
-		// NOTE: This could be automated with C++26 reflection.
-		return prettyFormat(/*nodeName=*/"FunctionCall", /*nodeArgs=*/{
-			{"callee", prettyFormat(object.callee)},
-			{"args", prettyFormat(object.args)},
-		});
-	}
 
 	struct BinaryOperator {};
 
@@ -146,16 +78,6 @@ export {
 		> node;
 	};
 
-	template<>
-	auto prettyFormat(const Expression& expression)
-		-> std::Vector<PrettyFormatElement>
-	{
-		if (std::holds_alternative<StringLiteral>(expression.node))
-			return prettyFormat(std::get<StringLiteral>(expression.node));
-		// TODO: Support other expressions.
-		return std::Vector<PrettyFormatElement>{{"<expr>"}};
-	}
-
 	struct MemberDeclaration {
 		std::Bool isLocal;
 		Identifier name;
@@ -181,5 +103,82 @@ export {
 	public:
 		std::Vector<Component> components;
 	};
+}
 
+export {
+	template<>
+	struct std::hash<ast::Identifier> {
+		auto operator()(const ast::Identifier& self) const noexcept -> USz {
+			return std::hash<std::String>{}(self.name);
+		}
+	};
+
+	template<>
+	auto prettyFormat(const ast::Expression& expression)
+		-> std::Vector<PrettyFormatElement>;
+
+	// Strings are printed as quoted strings rather than nodes.
+	template<>
+	auto prettyFormat(const std::String& object) -> std::Vector<PrettyFormatElement>
+	{
+		return std::Vector<PrettyFormatElement>{{std::format("\"{}\"", object)}};
+	}
+
+	// Identifiers are printed as simple unquoted strings.
+	template<>
+	auto prettyFormat(const ast::Identifier& object) -> std::Vector<PrettyFormatElement>
+	{
+		return std::Vector<PrettyFormatElement>{{object.name}};
+	}
+
+	template<>
+	auto prettyFormat(const ast::StringLiteral& object) -> std::Vector<PrettyFormatElement>
+	{
+		return std::Vector<PrettyFormatElement>{{std::format("\"{}\"", object.contents)}};
+	}
+
+	template<>
+	auto prettyFormat(const std::Vector<std::Pair<ast::Identifier, ast::Expression*>>& object)
+		-> std::Vector<PrettyFormatElement>
+	{
+		std::Vector<PrettyFormatElement> result;
+		result.emplace_back("[");
+		if (object.size() > 1) {
+			result.emplace_back(PrettyNewline{});
+			result.emplace_back(PrettyIndent{});
+			for (auto& [identifier, expression] : object) {
+				result.emplace_back(std::format("{} -> ", identifier.name));
+				result.append_range(prettyFormat(*expression));
+				result.emplace_back(PrettyNewline{});
+			}
+			result.emplace_back(PrettyOutdent{});
+		} else {
+			for (auto& [identifier, expression] : object) {
+				result.emplace_back(std::format("{} -> ", identifier.name));
+				result.append_range(prettyFormat(*expression));
+			}
+		}
+		result.emplace_back("]");
+		return result;
+	}
+
+	template<>
+	auto prettyFormat(const ast::FunctionCall& object) -> std::Vector<PrettyFormatElement>
+	{
+		// NOTE: This could be automated with C++26 reflection.
+		return prettyFormat(/*nodeName=*/"FunctionCall", /*nodeArgs=*/{
+			{"callee", prettyFormat(object.callee)},
+			{"args", prettyFormat(object.args)},
+		});
+	}
+
+	template<>
+	auto prettyFormat(const ast::Expression& expression)
+		-> std::Vector<PrettyFormatElement>
+	{
+		if (std::holds_alternative<ast::StringLiteral>(expression.node))
+			return prettyFormat(std::get<ast::StringLiteral>(expression.node));
+		// TODO: Support other expressions.
+		return std::Vector<PrettyFormatElement>{{"<expr>"}};
+	}
 }

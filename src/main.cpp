@@ -2,17 +2,17 @@ import util;
 import ast;
 import pretty_printer;
 
-// TODO: Namepsace `ast` module.
-// May require special decoupling from `pretty_printer`.
-
 using namespace std;
+using namespace ast;
 
 auto main() -> CInt
 {
 	Expression stringLiteral = Expression{StringLiteral{"Hello, world!"}};
 	FunctionCall helloWorld = {
 		.callee = Identifier{"printLine"},
-		.args = {{Identifier{"0"}, &stringLiteral}},
+		.args = {
+			{Identifier{"0"}, &stringLiteral},
+		},
 	};
 
 	ExpressionSequence mainFunctionBody;
