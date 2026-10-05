@@ -13,99 +13,132 @@ using namespace core;
 export namespace ast {
 	class Expression;
 
-	struct Identifier {
-		String name;
-
-		auto operator==(const Identifier& other) const -> Bool
-		{
-			return name == other.name;
-		}
-	};
+	struct Identifier;
 
 	// aka Block
-	struct ExpressionSequence {
-		Vector<Expression> expressions;
-	};
+	struct ExpressionSequence;
 
-	struct Declaration {
-		Maybe<Identifier> newIdentifier; // May be anonymous.
-		Maybe<Expression*> type; // May be inferred.
-	};
+	struct Declaration;
 
-	struct Assignment {
-		Identifier target;
-		Expression* value;
-	};
+	struct Assignment;
 
-	struct Return {
-		Expression* value;
-	};
+	struct Return;
 
-	struct StringLiteral {
-		String contents;
-	};
+	struct StringLiteral;
 
-	struct FunctionCall {
-		Identifier callee;
-		Vector<Pair<Identifier, Expression*>> args; // Supports mixed positional & keyword args.
-	};
+	struct FunctionCall;
 
-	struct BinaryOperator {};
+	struct BinaryOperator;
 
-	struct BinaryOperation {
-		BinaryOperator op; // NOTE: `operator` is a reserved C++ keyword.
-		Expression* leftExpression;
-		Expression* rightExpression;
-	};
+	struct BinaryOperation;
 
-	struct UnaryOperator {};
+	struct UnaryOperator;
 
-	struct UnaryOperation {
-		UnaryOperator op; // NOTE: `operator` is a reserved C++ keyword.
-		Expression* expression;
-	};
+	struct UnaryOperation;
 
-	class Expression {
-	public:
-		Variant<
-			ExpressionSequence,
-			Declaration,
-			Assignment,
-			Return,
-			Identifier,
-			StringLiteral,
-			FunctionCall,
-			BinaryOperation,
-			UnaryOperation
-		> node;
-	};
+	class Expression;
 
-	struct MemberDeclaration {
-		Bool isLocal;
-		Identifier name;
-		Expression* type;
-		Maybe<Expression*> defaultValue;
-	};
+	struct MemberDeclaration;
 
-	struct Import {
-		Vector<String> path;
-		Bool isQualified;
-		Maybe<String> qualifierAlias;
-	};
+	struct Import;
 
-	class Component {
-	public:
-		Variant<
-			MemberDeclaration,
-			Import
-		> component;
-	};
+	class Component;
 
-	class Interface {
-	public:
-		Vector<Component> components;
-	};
+	class Interface;
 }
+
+struct ast::Identifier {
+	String name;
+
+	auto operator==(const ast::Identifier& other) const -> Bool
+	{
+		return name == other.name;
+	}
+};
+
+// aka Block
+struct ast::ExpressionSequence {
+	Vector<ast::Expression> expressions;
+};
+
+struct ast::Declaration {
+	Maybe<ast::Identifier> newIdentifier; // May be anonymous.
+	Maybe<ast::Expression*> type; // May be inferred.
+};
+
+struct ast::Assignment {
+	ast::Identifier target;
+	ast::Expression* value;
+};
+
+struct ast::Return {
+	ast::Expression* value;
+};
+
+struct ast::StringLiteral {
+	String contents;
+};
+
+struct ast::FunctionCall {
+	ast::Identifier callee;
+	Vector<Pair<ast::Identifier, ast::Expression*>> args; // Supports mixed positional & keyword args.
+};
+
+struct ast::BinaryOperator {};
+
+struct ast::BinaryOperation {
+	ast::BinaryOperator op; // NOTE: `operator` is a reserved C++ keyword.
+	ast::Expression* leftExpression;
+	ast::Expression* rightExpression;
+};
+
+struct ast::UnaryOperator {};
+
+struct ast::UnaryOperation {
+	ast::UnaryOperator op; // NOTE: `operator` is a reserved C++ keyword.
+	ast::Expression* expression;
+};
+
+class ast::Expression {
+public:
+	Variant<
+		ast::ExpressionSequence,
+		ast::Declaration,
+		ast::Assignment,
+		ast::Return,
+		ast::Identifier,
+		ast::StringLiteral,
+		ast::FunctionCall,
+		ast::BinaryOperation,
+		ast::UnaryOperation
+	> node;
+};
+
+struct ast::MemberDeclaration {
+	Bool isLocal;
+	ast::Identifier name;
+	ast::Expression* type;
+	Maybe<ast::Expression*> defaultValue;
+};
+
+struct ast::Import {
+	Vector<String> path;
+	Bool isQualified;
+	Maybe<String> qualifierAlias;
+};
+
+class ast::Component {
+public:
+	Variant<
+		ast::MemberDeclaration,
+		ast::Import
+	> component;
+};
+
+class ast::Interface {
+public:
+	Vector<ast::Component> components;
+};
 
 export {
 	template<>
