@@ -43,4 +43,10 @@ export {
 	auto prettyFormat(const A&) -> std::Vector<PrettyFormatElement>;
 
 	void prettyPrint(const std::Vector<PrettyFormatElement>& format);
+
+	template<typename T>
+	void prettyPrint(const T& object)
+	{
+		prettyPrint(prettyFormat(object));
+	}
 }

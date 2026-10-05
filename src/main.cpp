@@ -2,8 +2,6 @@ import util;
 import ast;
 import pretty_printer;
 
-#include <print>
-
 auto main() -> std::CInt
 {
 	Expression stringLiteral = Expression{StringLiteral{"Hello, world!"}};
@@ -25,31 +23,7 @@ auto main() -> std::CInt
 	Interface program;
 	program.components.emplace_back(Component{mainFunction});
 
-	prettyPrint(prettyFormat(helloWorld));
-
-	// if (std::holds_alternative<MemberDeclaration>(program.components[0].component)) {
-	// 	auto memberDeclaration = std::get<MemberDeclaration>(program.components[0].component);
-	// 	if (memberDeclaration.isLocal) {
-	// 		printBuffer += "local ";
-	// 	}
-	// 	printBuffer += memberDeclaration.name.name + " ";
-	// 	printBuffer += "# ...";
-	// 	if (memberDeclaration.defaultValue.has_value() and *memberDeclaration.defaultValue != nullptr) {
-	// 		printBuffer += " = ";
-	// 		if (std::holds_alternative<ExpressionSequence>((**memberDeclaration.defaultValue).node)) {
-	// 			printBuffer += "() -> ():\n";
-	// 			auto expressionSequence = std::get<ExpressionSequence>((**memberDeclaration.defaultValue).node);
-	// 			for (auto& expression : expressionSequence.expressions) {
-	// 				if (std::holds_alternative<FunctionCall>(expression.node)) {
-	// 					auto functionCall = std::get<FunctionCall>(expression.node);
-	// 					for (auto& line : prettyFormat(functionCall)) {
-	// 						printBuffer += "\t" + line + "\n";
-	// 					}
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// }
+	prettyPrint(helloWorld);
 
     return 0;
 }
