@@ -11,12 +11,9 @@ import pretty_printer;
 using namespace core;
 
 export namespace ast {
-	class Expression;
-
 	struct Identifier;
 
-	// aka Block
-	struct ExpressionSequence;
+	struct ExpressionSequence; // aka Block
 
 	struct Declaration;
 
