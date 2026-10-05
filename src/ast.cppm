@@ -77,7 +77,7 @@ export {
 	}
 
 	template<>
-	auto prettyFormat(const std::HashMap<Identifier, Expression*>& object)
+	auto prettyFormat(const std::Vector<std::Pair<Identifier, Expression*>>& object)
 		-> std::Vector<PrettyFormatElement>
 	{
 		std::Vector<PrettyFormatElement> result;
@@ -103,7 +103,7 @@ export {
 
 	struct FunctionCall {
 		Identifier callee;
-		std::HashMap<Identifier, Expression*> args; // Supports mixed positional & keyword args.
+		std::Vector<std::Pair<Identifier, Expression*>> args; // Supports mixed positional & keyword args.
 	};
 
 	template<>
