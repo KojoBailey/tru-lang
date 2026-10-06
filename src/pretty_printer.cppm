@@ -41,7 +41,7 @@ export {
 	) -> Vector<PrettyFormatElement>;
 
 	template<typename A>
-	auto prettyFormat(const A&) -> Vector<PrettyFormatElement>;
+	auto prettyFormat(const A&) -> Vector<PrettyFormatElement> = delete;
 
 	void prettyPrint(const Vector<PrettyFormatElement>& format);
 
