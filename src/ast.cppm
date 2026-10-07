@@ -45,6 +45,12 @@ export {
 	template<> auto prettyFormat(const Vector<Pair<ast::Identifier, ast::Expression*>>& object)
 		-> Vector<PrettyFormatElement>;
 
+	template<> auto prettyFormat(const Vector<ast::Expression>& object)
+		-> Vector<PrettyFormatElement>;
+
+	template<> auto prettyFormat(const ast::ExpressionSequence& object)
+		-> Vector<PrettyFormatElement>;
+
 	template<> auto prettyFormat(const ast::FunctionCall& object)
 		-> Vector<PrettyFormatElement>;
 
